@@ -1,5 +1,6 @@
 
 #include <Arduino.h>
+
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 #include <SPIFFS.h>
@@ -8,14 +9,12 @@
 
 // Set web server port number to 80
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
 
 // Variable to store the HTTP request
 String header;
 
 String get_current_pressure_reading_bar();
-
-
-const bool ap_mode = true;
 
 void setup_wifi_module() {
 
@@ -31,17 +30,17 @@ void setup_wifi_module() {
     Serial.print("AP IP address: ");
     Serial.println(IP);
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/index.html");
-  });
-  server.on("/logo", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(SPIFFS, "/logo.jpg", "image/png");
-  });
-  server.on("/pressure", HTTP_GET, [](AsyncWebServerRequest *request){
-    AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", get_current_pressure_reading_bar().c_str());
-    response->addHeader("Access-Control-Allow-Origin", "*");
-    request->send(response);
-  });
+    server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, "/index.html");
+    });
+    server.on("/logo", HTTP_GET, [](AsyncWebServerRequest *request){
+      request->send(SPIFFS, "/logo.jpg", "image/png");
+    });
+    server.on("/pressure", HTTP_GET, [](AsyncWebServerRequest *request){
+      AsyncWebServerResponse *response = request->beginResponse(200, "text/plain", get_current_pressure_reading_bar().c_str());
+      response->addHeader("Access-Control-Allow-Origin", "*");
+      request->send(response);
+    });
 
   server.begin();
 }
